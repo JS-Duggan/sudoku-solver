@@ -11,8 +11,15 @@ struct Square {
     bool set;
     int val;
 
-    Square() : candidates(std::set<int>{1, 2, 3, 4, 5, 6, 7, 8, 9}) {};
-    Square(int v) : set(true), val(v) {};
+    Square() : 
+        candidates(std::set<int>{1, 2, 3, 4, 5, 6, 7, 8, 9}),
+        set(false),
+        val(0) {};
+
+    Square(int v) : 
+        candidates(std::set<int>{}),
+        set(true),
+        val(v) {};
 };
 
 struct Board {
@@ -25,7 +32,7 @@ struct Board {
         freeCells = 81;
     }
 
-    void readInput(std::vector<std::set<std::pair<int, int>>> pq) {
+    void readInput() {
         int x;
         std::cout << "Enter board string: \n";
         for (int i = 0; i < 9; i++) {
@@ -34,7 +41,7 @@ struct Board {
                 if (x < 0 || x > 9) throw std::out_of_range("Input out of range");
                 if (x > 0) {
                     squares[i][j] = Square(x);
-                    removeCandidates(x, pq, i, j);
+                    initialRemove(x, i, j);
                     freeCells--;
                 }
             }
@@ -58,6 +65,37 @@ struct Board {
             
             std::cout << std::endl;
         }
+    }
+
+    bool initialRemove(int candidate, int i, int j) {
+        for (int k = 0; k < 9; k++) {
+            /* remove from column */
+            if (!squares[k][j].set) {
+                squares[k][j].candidates.erase(candidate);
+                if (squares[k][j].candidates.size() == 0) return false;
+            }
+            
+            /* remove from row */
+            if (!squares[i][k].set) {
+                squares[i][k].candidates.erase(candidate);
+                if (squares[i][k].candidates.size() == 0) return false;
+            }
+        }
+
+        /* remove from square */
+        int i_square = i - i % 3;
+        int j_square = j - j % 3;
+
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (!squares[i_square + x][j_square + y].set) {
+                    squares[i_square + x][j_square + y].candidates.erase(candidate);
+                    if (squares[i_square + x][j_square + y].candidates.empty()) return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     bool removeCandidates(int candidate, std::vector<std::set<std::pair<int,int>>>& pq, int i, int j) {
