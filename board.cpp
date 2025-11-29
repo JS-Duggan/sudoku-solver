@@ -27,6 +27,7 @@ struct Board {
 
     void readInput() {
         int x;
+        std::cout << "Enter board string: \n";
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 std::cin >> x;

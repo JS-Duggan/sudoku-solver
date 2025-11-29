@@ -10,7 +10,7 @@ void printCandidates(Square& s) {
     std::cout << " }\n";
 }
 
-void solve(Board& b) {
+void solve(Board& b, bool verbose) {
     /* completion check */
     if (b.freeCells == 0) return;
 
@@ -21,8 +21,10 @@ void solve(Board& b) {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
             /* print statements to see how candidates are reduced and selected */
-            // std::cout << i << ", " << j << ": ";
-            // printCandidates(b.squares[i][j]);
+            if (verbose) {
+                std::cout << i << ", " << j << ": ";
+                printCandidates(b.squares[i][j]);
+            }
             if (!b.squares[i][j].set && !b.squares.empty() && b.squares[i][j].candidates.size() < leastCandidates) {
                 next = {i, j};
                 leastCandidates = b.squares[i][j].candidates.size();
@@ -34,12 +36,14 @@ void solve(Board& b) {
     /* branch */
     Square* s = &b.squares[next.first][next.second];
     for(const int candidate : s->candidates) {
-        // std::cout << "check candidate " << candidate << " for square " << next.first << ", " << next.second << std::endl;
+        if (verbose) {
+            std::cout << "check candidate " << candidate << " for square " << next.first << ", " << next.second << std::endl;
+        }
 
         /* for each candidate, attempt to set. If this results in another unset square having 0 candidates, try next*/
         if (b.setCandidate(candidate, next.first, next.second)) {
             /* all squares have potential candidates, go to next state */
-            solve(b);
+            solve(b, verbose);
             if (b.freeCells == 0)
                 return;
         }
@@ -51,6 +55,9 @@ void solve(Board& b) {
 int main() {
     Board b;
     b.readInput();
-    solve(b);
+    bool verbose;
+    std::cout << "Print solve logs? (1/0): ";
+    std::cin >> verbose;
+    solve(b, verbose);
     b.printBoard();
 }
