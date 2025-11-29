@@ -133,7 +133,7 @@ struct Board {
 
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                if (!(i == x && j == y) && squares[i_square + x][j_square + y].set && squares[i_square + x][j_square + y].val == candidate) return false;
+                if (!(i_square + x == i && j_square + y == j) && squares[i_square + x][j_square + y].set && squares[i_square + x][j_square + y].val == candidate) return false;
             }
         }
 

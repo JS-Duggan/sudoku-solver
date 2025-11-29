@@ -25,7 +25,7 @@ void solve(Board& b, bool verbose) {
                 std::cout << i << ", " << j << ": ";
                 printCandidates(b.squares[i][j]);
             }
-            if (!b.squares[i][j].set && !b.squares.empty() && b.squares[i][j].candidates.size() < leastCandidates) {
+            if (!b.squares[i][j].set && !b.squares[i][j].candidates.empty() && b.squares[i][j].candidates.size() < leastCandidates) {
                 next = {i, j};
                 leastCandidates = b.squares[i][j].candidates.size();
             }
