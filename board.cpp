@@ -104,11 +104,11 @@ struct Board {
             if (!squares[k][j].set) {
                 int size = squares[k][j].candidates.size();
                 squares[k][j].candidates.erase(candidate);
-                if (squares[k][j].candidates.size() == 0) return false;
                 if (squares[k][j].candidates.size() < size) {
                     pq[size].erase({k, j});
                     pq[size - 1].insert({k, j});
                 }
+                if (squares[k][j].candidates.size() == 0) return false;
             }
             
             /* remove from row */
@@ -148,12 +148,18 @@ struct Board {
         for (int k = 0; k < 9; k++) {
             /* add to column */
             if (!squares[k][j].set && checkCandidate(candidate, k, j)) {
+                int size = squares[k][j].candidates.size();
                 squares[k][j].candidates.insert(candidate);
+                pq[size].erase({k, j});
+                pq[size + 1].insert({k, j});
             }
             
             /* add to row */
             if (!squares[i][k].set && checkCandidate(candidate, i, k)) {
+                int size = squares[i][k].candidates.size();
                 squares[i][k].candidates.insert(candidate);
+                pq[size].erase({i, k});
+                pq[size + 1].insert({i, k});
             }
         }
 
@@ -164,7 +170,10 @@ struct Board {
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 if (!squares[i_square + x][j_square + y].set && checkCandidate(candidate, i_square + x, j_square + y)) {
+                    int size = squares[i_square + x][j_square + y].candidates.size();
                     squares[i_square + x][j_square + y].candidates.insert(candidate);
+                    pq[size].erase({i_square + x, j_square + y});
+                    pq[size + 1].insert({i_square + x, j_square + y});
                 }
             }
         }
@@ -194,6 +203,8 @@ struct Board {
     }
 
     bool setCandidate(int candidate, std::vector<std::set<std::pair<int,int>>>& pq, int i, int j) {
+        // pq[squares[i][j].candidates.size()].erase({i, j});
+
         squares[i][j].val = candidate;
         squares[i][j].set = true;
         freeCells--;
@@ -201,6 +212,8 @@ struct Board {
     }
 
     void unsetCandidate(int candidate, std::vector<std::set<std::pair<int,int>>>& pq, int i, int j) {
+        // pq[squares[i][j].candidates.size()].insert({i, j});
+
         squares[i][j].set = false;
         addCandidates(candidate, pq, i, j);
         freeCells++;
