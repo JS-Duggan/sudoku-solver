@@ -33,6 +33,7 @@ struct Board {
                 if (x < 0 || x > 9) throw std::out_of_range("Input out of range");
                 if (x > 0) {
                     squares[i][j] = Square(x);
+                    removeCandidates(x, i, j);
                     freeCells--;
                 }
             }
@@ -58,16 +59,18 @@ struct Board {
         }
     }
 
-    void removeCandidates(int candidate, int i, int j) {
+    bool removeCandidates(int candidate, int i, int j) {
         for (int k = 0; k < 9; k++) {
             /* remove from column */
             if (!squares[k][j].set) {
                 squares[k][j].candidates.erase(candidate);
+                if (squares[k][j].candidates.size() == 0) return false;
             }
             
             /* remove from row */
             if (!squares[i][k].set) {
                 squares[i][k].candidates.erase(candidate);
+                if (squares[i][k].candidates.size() == 0) return false;
             }
         }
 
@@ -79,21 +82,23 @@ struct Board {
             for (int y = 0; y < 3; y++) {
                 if (!squares[i_square + x][j_square + y].set) {
                     squares[i_square + x][j_square + y].candidates.erase(candidate);
+                    if (squares[i_square + x][j_square + y].candidates.empty()) return false;
                 }
             }
         }
 
+        return true;
     }
 
     void addCandidates(int candidate, int i, int j) {
         for (int k = 0; k < 9; k++) {
             /* add to column */
-            if (!squares[k][j].set) {
+            if (!squares[k][j].set && checkCandidate(candidate, k, j)) {
                 squares[k][j].candidates.insert(candidate);
             }
             
             /* add to row */
-            if (!squares[i][k].set) {
+            if (!squares[i][k].set && checkCandidate(candidate, i, k)) {
                 squares[i][k].candidates.insert(candidate);
             }
         }
@@ -104,11 +109,47 @@ struct Board {
 
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                if (!squares[i_square + x][j_square + y].set) {
+                if (!squares[i_square + x][j_square + y].set && checkCandidate(candidate, i_square + x, j_square + y)) {
                     squares[i_square + x][j_square + y].candidates.insert(candidate);
                 }
             }
         }
+    }
+
+    /* check if can replace candidate in square */
+    bool checkCandidate(int candidate, int i, int j) {
+        for (int k = 0; k < 9; k++) {
+            /* check columns */
+            if (k != i && squares[k][j].set && squares[k][j].val == candidate) return false;
+            
+            /* check rows */
+            if (k != j && squares[i][k].set && squares[i][k].val == candidate) return false;
+        }
+
+        /* check surrounding square */
+        int i_square = i - i % 3;
+        int j_square = j - j % 3;
+
+        for (int x = 0; x < 3; x++) {
+            for (int y = 0; y < 3; y++) {
+                if (!(i == x && j == y) && squares[i_square + x][j_square + y].set && squares[i_square + x][j_square + y].val == candidate) return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool setCandidate(int candidate, int i, int j) {
+        squares[i][j].val = candidate;
+        squares[i][j].set = true;
+        freeCells--;
+        return (removeCandidates(candidate, i, j));
+    }
+
+    void unsetCandidate(int candidate, int i, int j) {
+        squares[i][j].set = false;
+        addCandidates(candidate, i, j);
+        freeCells++;
     }
 };
 
