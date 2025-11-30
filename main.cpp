@@ -2,6 +2,8 @@
 #include <iostream>
 #include "board.cpp"
 
+int stepCount = 0;
+
 void printCandidates(Square& s) {
     std::cout << "{";
     for (const int candidate : s.candidates) {
@@ -13,7 +15,7 @@ void printCandidates(Square& s) {
 void solve(Board& b, bool verbose) {
     /* completion check */
     if (b.freeCells == 0) return;
-
+    stepCount++;
     std::pair<int, int> next;
     int leastCandidates = 10;
 
@@ -60,4 +62,5 @@ int main() {
     std::cin >> verbose;
     solve(b, verbose);
     b.printBoard();
+    std::cout << "Steps taken: " << stepCount << std::endl;
 }
